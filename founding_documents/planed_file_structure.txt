@@ -1,0 +1,16 @@
+brewtool/
+├── deno.json
+├── main.js
+├── src/
+│   ├── panels/
+│   │   ├── search_panel.js
+│   │   ├── main_panel.js
+│   │   └── brewfile_panel.js
+│   ├── utils/
+│   │   ├── brew_commands.js
+│   │   └── ui_helpers.js
+│   └── models/
+│       └── package.js
+└── founding_documents/
+    ├── file_structure.txt
+    └── Plan.txt

@@ -1,0 +1,129 @@
+BrewTool Project Plan
+
+1. Goals:
+- Making a terminal UI (TUI) for using homebrew
+-Inspiration is lazygit
+-Use JavaScript
+-Use BUN
+-Use ink (https://github.com/vadimdemedes/ink?tab=readme-ov-file#box)
+
+2. Core functionality:
+-We will have 3 panels:
+  -Search panel
+  -Main panel
+  -Brewfile panel
+-We navigate trough the panels using 1-3
+-The panels are placed vertically using (10/80/10 % + the commands bar) of the 100% of the screen in height and 100% in width.
+  Or the sizes can be adjusted to this specification
+  ╭─ [ 1 - SEARCH ] ───────────────╮  <-one line for the top row of the panel
+  │ >                              │  <-one row for the search field
+  ╰────────────────────────────────╯  <-one line for the bottom row of the panel
+  ╭─ [ 2 - MAIN ] ─────────────────╮
+  │ List item                      │
+  │ List item                      │  <-the rest is taken by the Main panel
+  │ List item                      │
+  │ List item                      │
+  ╰────────────────────────────────╯
+  ╭─ [ 3 - BREWFILE ] ─────────────╮  <-one line for the top row of the panel
+  │ No brewfile                    │  <-one row for the brewfile information
+  ╰────────────────────────────────╯  <-one line for the bottom row of the panel
+  |Bar to show the commands        |
+-When we focus on the panel the command bar changes the command list
+  -So if we were on the search panel we would have:
+  | |1| Search |2| Main |3| Brewfile| |enter| To start search |
+-When entering the program the focus is on the first panel (Search Panel)
+  -And we can start searching for the package/app
+  -When we enter the name of the package/app and press enter the search starts (there needs to be enter in the 
+    command bar for start search)
+  -When enter is pressed to start the search the text entered in the search field needs to be removed
+  -If there are packages available on homebrew the SEARCH Panel expands to show the list of packages that 
+    can be installed and the main panel shrinks by the amount he search panel expands
+  ╭─ [ 1 - SEARCH ] ───────────────╮
+  │ >                              │
+  │  package 1                     │  <- This panel expands to accommodate the list that forms
+  │  package 2                     │
+  ╰────────────────────────────────╯
+  ╭─ [ 2 - MAIN ] ─────────────────╮
+  │ List item                      │  <- This panel shrinks to accommodate the Search panel expansion
+  │ List item                      │ 
+  ╰────────────────────────────────╯
+  ╭─ [ 3 - BREWFILE ] ─────────────╮
+  │ No brewfile                    │
+  ╰────────────────────────────────╯
+  |Bar to show the commands        |
+  - The list in the Search panel that forms by searching for the packages/apps should look like this:
+    | |*|package name|short description if available| <- The * indicates the package/app is selected / The color of the text in the line changes to green when selected
+    |→| |package name|short description if available| <- The → shows where we are positioned
+-When entering the program the second panel shows the list of installed programs and updates if available
+-I think its ok tu run the brew update command at the start of the program but I will leave that up to you
+-When switching to the Main panel we can use the arrow keys up and down to move trough the list
+-We select the package/app by pressing space
+  -The list will be organized like this:
+  | | |Select all ↓|                         <- If this is selected all packages/apps that can be updated will be updated / set the * to all packages that can be updatedand change the color to green
+  | |*|package name|version|->|new version|  <- The * indicates the package/app is selected / The color of the text in the line changes to green when selected
+  | |x|package name|version|-x|-----------|  <- ----------- indicates that no update is available / Cant be selected indicated by x and the color of the text is orange
+  |→|x|package name|version|-x|-----------|  <- The → shows where we are positioned
+  | | |package name|version|->|new version|
+-We initialize the update process by pressing U
+-If a short description is needed for the installed packages I leave to you. Would be nice though. 
+  -If the short description is implemented that row could be removed if the terminal screen is to small.
+-We can also select packages/apps and delete them by selecting them und pressing D
+-We could add the search option to the MAIN panel by pressing / to narrow the packages/apps list.
+  Something like this:
+  ╭─ [ 2 - MAIN ] ─────────────────╮
+  │ >                              │  <- By presing / this pops up and we could enter the name of the package/app
+  │ List item                   |*|│      or just the first letter or couple of letters to shrink the list
+  │ List item                   |*|│      -press u to use the shrunk list and again use arrows to cycle trough the list
+  │ List item                   |*|│      -press s again to go to the search bar of the MAIN panel
+  │ List item                   | |│      -press x to exit search and go back to cycle trough the compleat list
+  │ List item                   | |│
+  │ List item                   | |│
+  │ List item                   | |│
+  ╰────────────────────────────────╯
+-If the list of installed packages is to big to fit the panel a scroll bar needs to be placed.
+  ╭─ [ 2 - MAIN ] ─────────────────╮
+  │ List item                   |*|│
+  │ List item                   |*|│  <- the scroll bar is implemented like this using |*|
+  │ List item                   |*|│      or if there is a better option let me know
+  │ List item                   |*|│
+  │ List item                   | |│
+  │ List item                   | |│
+  │ List item                   | |│
+  │ List item                   | |│
+  ╰────────────────────────────────╯
+-When entering the program the BREWFILE panel shows the status if the brewfile is present or not.
+-When focusing on the BREWFILE panel we have the options to make a brewfile from the list of installed packages/apps
+-The brewfile is stored in ~/.config/brewtool/brewfile
+-The user can manually copy the brewfile if he already had one to the ~/.config/brewtool/brewfile directory
+  -Or symlink it from their .dotfiles
+-If the player imports his brewfile then we need the option to install packages/apps from the brewfile
+-We would need the option to update the brewfile if the installed packages/apps are out of sync
+-Maybe if the installed packages/apps are out of sinc the color of the panel border and title should be orange or yellow
+  to indicate the problem.
+-When focusing on the panel the panel border and title should be green.
+-Unfocused panel border and title should be white
+
+3. Technologies
+-JavaScript and BUN
+-ink package
+-Homebrew (as the package manager we're working with)
+
+4. Guides
+-We will not use single letter variables and functions!
+
+5. Important
+-This is a project used to learn JS and BUN
+-Detailed explanation will be required
+-Will implement step by step feature so no rushing with the code
+-Don't give code unless asked to do so.
+-We go step by step. 
+-We have a problem; we get a solution for that problem.
+-When adding a new file we will show the fille path and ad the *! sign next to the file to show that this is new
+  Like this:
+  brewtool/
+  ├── main.go *!  <- The name used here is en example!
+  └──founding_documents/
+      ├── file_structure.txt
+      └── Plan.txt
+-Always give the whole code and not the snippets to add.
+-username = marko0905
