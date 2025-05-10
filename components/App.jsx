@@ -84,6 +84,7 @@ export default function App() {
 
       <BrewfilePanel 
         focused={focused_b}
+        refreshTrigger={refreshTrigger}
       />
       <CommandBar
         focused_s={focused_s}
