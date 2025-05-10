@@ -80,9 +80,9 @@ export default function CommandBar({ focused_s = false, focused_m = false, focus
           <Text> </Text>
           <Text backgroundColor="rgb(0, 13, 255)">|Create Brewfile - c|</Text>
           <Text> </Text>
-          <Text backgroundColor="rgb(0, 10, 196)">|Import - i|</Text>
+          <Text backgroundColor="rgb(0, 10, 196)">|Update - u|</Text>
           <Text> </Text>
-          <Text backgroundColor="rgb(0, 13, 255)">|Update - u|</Text>
+          <Text backgroundColor="rgb(0, 13, 255)">|Reinstall packages from Brewfile - i|</Text>
         </Box>
       )}
     </Box>

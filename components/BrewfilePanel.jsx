@@ -4,6 +4,7 @@ import { Box, Text, useApp, useInput } from 'ink';
 import React, { useEffect, useState } from 'react';
 
 import { useTerminalDimensions } from '../utils/hooks.js';
+import BrewfileStates from './common/BrewfileStates.jsx';
 
 export default function BrewfilePanel({ focused = false }) {
   const isFocused = focused;
@@ -40,9 +41,9 @@ export default function BrewfilePanel({ focused = false }) {
     },
     brewfileContainer: {
       display: 'flex',
-      flexDirection: 'row',
-      justifyContent: 'left',
-      alignItems: 'center',
+      flexDirection: 'column',
+      justifyContent: 'flex-start',
+      alignItems: 'flex-start',
       width: tWidth,
       height: bPanelHeight - 1,
       minHeight: 1,
@@ -55,9 +56,9 @@ export default function BrewfilePanel({ focused = false }) {
     },
     brewfileContainer_focused: {
       display: 'flex',
-      flexDirection: 'row',
-      justifyContent: 'left',
-      alignItems: 'center',
+      flexDirection: 'column',
+      justifyContent: 'flex-start',
+      alignItems: 'flex-start',
       width: tWidth,
       height: bPanelHeight - 1,
       minHeight: 1,
@@ -77,7 +78,12 @@ export default function BrewfilePanel({ focused = false }) {
         </Text>
       </Box>
       <Box {...(isFocused ? styles.brewfileContainer_focused : styles.brewfileContainer)}>
-        <Text>No brewfile</Text>
+        <Text>Looking for brewfile in: ~/.config/brewtool/brewfile</Text>
+        <BrewfileStates
+          loading_bf={true}
+          brewFileLocated={false}
+          update_bf={false}
+        />
       </Box>
     </Box>
   );
