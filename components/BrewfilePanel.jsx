@@ -73,8 +73,11 @@ export default function BrewfilePanel({ focused = false, refreshTrigger = 0 }) {
         setIsSymlinked(false);
         setSymlinkTarget('');
       }
+      
+      return true; // Return success
     } catch (err) {
       console.error('Error checking brewfile status:', err);
+      throw err; // Propagate error
     } finally {
       setLoading(false);
     }
@@ -255,6 +258,22 @@ export default function BrewfilePanel({ focused = false, refreshTrigger = 0 }) {
       handleUpdateBrewfile();
     } else if (input === 'i') {
       handleInstallFromBrewfile();
+    } else if (input === 'r') {
+      // Handle refresh command
+      setOperationStatus({ message: 'Refreshing brewfile status...' });
+      checkBrewfileStatus()
+        .then(() => {
+          setOperationStatus({ 
+            success: true, 
+            message: 'Brewfile status refreshed' 
+          });
+        })
+        .catch(err => {
+          setOperationStatus({ 
+            success: false, 
+            message: `Failed to refresh: ${err.message || 'Unknown error'}` 
+          });
+        });
     }
   });
   
