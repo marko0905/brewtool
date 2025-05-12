@@ -40,13 +40,23 @@ BrewTool provides an intuitive terminal-based interface for managing your Homebr
 
 ## Installation
 
-### Prerequisites
+### Via Homebrew (Recommended)
+
+```bash
+# Add the tap
+brew tap marko0905/tap
+
+# Install BrewTool
+brew install brewtool
+```
+
+### Install from source
+
+#### Prerequisites
 
 - [Node.js](https://nodejs.org) (v16+)
 - [Bun](https://bun.sh) (v1.2+)
 - [Homebrew](https://brew.sh)
-
-### Install from source
 
 ```bash
 # Clone the repository
