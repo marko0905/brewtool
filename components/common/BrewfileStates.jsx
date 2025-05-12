@@ -1,8 +1,6 @@
 // brewtool/components/common/BrewfileStates.jsx
 
-import { Box, Text, useApp, useInput } from 'ink';
-import TextInput from 'ink-text-input';
-import React, { useEffect, useState } from 'react';
+import { Box, Text } from 'ink';
 
 export default function BrewfileStates({loading_bf = false, brewFileLocated = false, update_bf = false}) {
 

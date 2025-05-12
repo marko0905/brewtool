@@ -1,8 +1,6 @@
 // brewtool/components/CommandBar.jsx
 
-import { Box, Text, useApp, useInput } from 'ink';
-import TextInput from 'ink-text-input';
-import React, { useEffect, useState } from 'react';
+import { Box, Text } from 'ink';
 import { useTerminalDimensions } from '../utils/hooks.js';
 
 export default function CommandBar({ focused_s = false, focused_m = false, focused_b = false }) {

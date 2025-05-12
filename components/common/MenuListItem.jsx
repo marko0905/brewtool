@@ -1,8 +1,6 @@
 // brewtool/components/common/MenuListItem.jsx
 
-import { Box, Text, useApp, useInput } from 'ink';
-import TextInput from 'ink-text-input';
-import React, { useEffect, useState } from 'react';
+import { Box, Text } from 'ink';
 
 export default function MenuListItem({
   packageName = '', 
@@ -66,13 +64,3 @@ export default function MenuListItem({
     </Box>
   );
 }
-
-// Usage:
-// <MenuListItem
-//   packageName='cmatrix'
-//   packageVersion='0.5.1'
-//   updateAvailable={true}
-//   updateVersion = '0.5.2'
-//   listItemFocused={false}
-//   selected={false}
-// />

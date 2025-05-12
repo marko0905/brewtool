@@ -2,7 +2,6 @@
 
 import { Box, Text } from 'ink';
 import TextInput from 'ink-text-input';
-import React from 'react';
 
 export default function MenuListSearch({ value = '', onChange = () => {} }) {
 

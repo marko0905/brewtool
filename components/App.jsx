@@ -1,7 +1,7 @@
 // brewtool/components/App.jsx
 
-import { Box, Text, useApp, useInput } from 'ink';
-import React, { useEffect, useState } from 'react';
+import { Box, useInput } from 'ink';
+import { useEffect, useState } from 'react';
 
 import { updateHomebrew } from '../services/brewServices.js';
 import { useTerminalDimensions } from '../utils/hooks';
@@ -17,13 +17,10 @@ export default function App() {
   const [focused_b, setFocused_b] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  // Function to refresh package lists 
   const refreshPackages = () => {
-    // Increment the refresh trigger to cause components to refresh
     setRefreshTrigger(prev => prev + 1);
   };
 
-  // Initial Homebrew update when app starts
   useEffect(() => {
     const performInitialUpdate = async () => {
       try {

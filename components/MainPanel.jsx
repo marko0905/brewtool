@@ -1,7 +1,7 @@
 // brewtool/components/MainPanel.jsx
 
 import { Box, Text, useInput } from 'ink';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { getInstalledPackages, uninstallPackage, updateAllPackages, updatePackage } from '../services/brewServices.js';
 import { useTerminalDimensions } from '../utils/hooks';
@@ -33,7 +33,6 @@ export default function MainPanel({ focused = false, refreshTrigger = 0 }) {
   
   const visibleItems = Math.max(mPanelHeight - 3, 1);
   
-  // Fetch packages on initial load and when refreshTrigger changes
   useEffect(() => {
     fetchPackages();
   }, [refreshTrigger]);
@@ -298,7 +297,6 @@ export default function MainPanel({ focused = false, refreshTrigger = 0 }) {
   const scrollBarItems = !loading && filteredPackages.length > 0 ? renderScrollBar() : [];
   const hasNoSearchResults = searchQuery !== '' && filteredPackages.length === 0;
   
-  // Define my styles object
   const styles = {
     wrapper: {
       display: 'flex',

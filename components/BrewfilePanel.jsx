@@ -1,7 +1,7 @@
 // brewtool/components/BrewfilePanel.jsx
 
 import { Box, Text, useInput } from 'ink';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import {
   BREWFILE_PATH,
@@ -33,12 +33,10 @@ export default function BrewfilePanel({ focused = false, refreshTrigger = 0 }) {
 
   const bPanelHeight = Math.max(Math.floor(tHeight * 0.1), 3);
   
-  // Check brewfile status on initial load, when panel is focused, or when refreshTrigger changes
   useEffect(() => {
     checkBrewfileStatus();
   }, [focused, refreshTrigger]);
   
-  // Reset operation status after delay
   useEffect(() => {
     if (operationStatus) {
       const timer = setTimeout(() => {
@@ -52,11 +50,9 @@ export default function BrewfilePanel({ focused = false, refreshTrigger = 0 }) {
     try {
       setLoading(true);
       
-      // Check if brewfile exists
       const exists = await checkBrewfileExists();
       setBrewfileExists(exists);
       
-      // If it exists, check if it's a symlink
       if (exists) {
         const symlinked = await isSymlink(BREWFILE_PATH);
         setIsSymlinked(symlinked);
@@ -66,7 +62,6 @@ export default function BrewfilePanel({ focused = false, refreshTrigger = 0 }) {
           setSymlinkTarget(target || '');
         }
         
-        // Check if it's up to date regardless of whether it's a symlink
         const upToDate = await isBrewfileUpToDate();
         setBrewfileUpToDate(upToDate);
       } else {
@@ -74,16 +69,15 @@ export default function BrewfilePanel({ focused = false, refreshTrigger = 0 }) {
         setSymlinkTarget('');
       }
       
-      return true; // Return success
+      return true;
     } catch (err) {
       console.error('Error checking brewfile status:', err);
-      throw err; // Propagate error
+      throw err;
     } finally {
       setLoading(false);
     }
   }
   
-  // Create brewfile
   async function handleCreateBrewfile() {
     if (operationInProgress) return;
     
@@ -107,18 +101,15 @@ export default function BrewfilePanel({ focused = false, refreshTrigger = 0 }) {
     }
   }
   
-  // Update brewfile
   async function handleUpdateBrewfile() {
     if (operationInProgress) return;
     
-    // If it's a symlink, warn user before updating
     if (isSymlinked) {
       setOperationStatus({
         success: false,
         message: `Warning: Brewfile is a symlink to ${symlinkTarget}. Update with caution.`
       });
       
-      // Wait for warning to be shown before proceeding
       await new Promise(resolve => setTimeout(resolve, 3000));
     }
     
@@ -142,7 +133,6 @@ export default function BrewfilePanel({ focused = false, refreshTrigger = 0 }) {
     }
   }
   
-  // Check for changes that would happen from reinstalling
   async function checkBrewfileChanges() {
     if (operationInProgress || !brewfileExists) return;
     
@@ -175,7 +165,6 @@ export default function BrewfilePanel({ focused = false, refreshTrigger = 0 }) {
     }
   }
   
-  // Install packages from brewfile
   async function handleInstallFromBrewfile() {
     if (operationInProgress) return;
     
@@ -187,13 +176,11 @@ export default function BrewfilePanel({ focused = false, refreshTrigger = 0 }) {
       return;
     }
     
-    // If we haven't shown confirmation yet, check changes first
     if (!showConfirmation) {
       await checkBrewfileChanges();
       return;
     }
     
-    // User has confirmed, proceed with installation
     try {
       setShowConfirmation(false);
       setOperationInProgress(true);
@@ -201,7 +188,6 @@ export default function BrewfilePanel({ focused = false, refreshTrigger = 0 }) {
       
       const result = await installFromBrewfile(false);
       
-      // Add details about what was installed/removed to the message
       let detailedMessage = result.message;
       
       if (result.installed.length > 0 || result.removed.length > 0) {
@@ -234,14 +220,12 @@ export default function BrewfilePanel({ focused = false, refreshTrigger = 0 }) {
     }
   }
   
-  // Handle keyboard input
   useInput((input, key) => {
     if (!isFocused) return;
     
     if (operationInProgress) return;
     
     if (showConfirmation) {
-      // If confirmation is showing, any key other than 'i' cancels
       if (input !== 'i') {
         setShowConfirmation(false);
         setPendingChanges(null);
@@ -259,7 +243,6 @@ export default function BrewfilePanel({ focused = false, refreshTrigger = 0 }) {
     } else if (input === 'i') {
       handleInstallFromBrewfile();
     } else if (input === 'r') {
-      // Handle refresh command
       setOperationStatus({ message: 'Refreshing brewfile status...' });
       checkBrewfileStatus()
         .then(() => {

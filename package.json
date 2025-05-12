@@ -1,5 +1,7 @@
 {
   "name": "brewtool",
+  "version": "0.1.0",
+  "author": "Marko Mijacevic",
   "module": "index.js",
   "type": "module",
   "devDependencies": {

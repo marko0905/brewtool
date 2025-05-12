@@ -1,7 +1,6 @@
 // brewtool/components/common/SearchListItem.jsx
 
 import { Box, Text } from 'ink';
-import React from 'react';
 import { useTerminalDimensions } from '../../utils/hooks.js';
 
 export default function SearchListItem({
@@ -12,11 +11,9 @@ export default function SearchListItem({
   
   const [tWidth] = useTerminalDimensions();
   
-  // Calculate max width for description based on terminal width and name length
   const nameWidth = searchItemName.length;
-  const maxDescWidth = Math.max(tWidth - nameWidth - 20, 20); // Allow at least 20 chars for description
+  const maxDescWidth = Math.max(tWidth - nameWidth - 20, 20);
   
-  // Truncate description if needed and add ellipsis
   const truncatedDescription = searchItemDescription && searchItemDescription.length > maxDescWidth
     ? searchItemDescription.substring(0, maxDescWidth - 3) + '...'
     : searchItemDescription;

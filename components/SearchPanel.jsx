@@ -2,7 +2,7 @@
 
 import { Box, Text, useInput } from 'ink';
 import TextInput from 'ink-text-input';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { installPackage, searchPackages } from '../services/brewServices.js';
 import { useTerminalDimensions } from '../utils/hooks.js';
@@ -13,11 +13,9 @@ export default function SearchPanel({ focused = false, refreshPackages = () => {
   const isFocused = focused;
   const [tWidth, tHeight] = useTerminalDimensions();
   
-  // Search input states
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   
-  // Search result states
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState(null);
@@ -27,11 +25,9 @@ export default function SearchPanel({ focused = false, refreshPackages = () => {
   const [operationStatus, setOperationStatus] = useState(null);
   const [operationInProgress, setOperationInProgress] = useState(false);
   
-  // Panel height calculation
   const sPanelHeight = Math.max(Math.floor(tHeight * 0.1), 3);
   
-  // Number of visible items in the list (accounting for the search input row)
-  const visibleItems = Math.max(sPanelHeight - 3, 1); // -3 for borders and search input row
+  const visibleItems = Math.max(sPanelHeight - 3, 1);
   
   useEffect(() => {
     if (!isFocused) {
@@ -39,7 +35,6 @@ export default function SearchPanel({ focused = false, refreshPackages = () => {
     }
   }, [isFocused]);
   
-  // Reset operation status after delay
   useEffect(() => {
     if (operationStatus) {
       const timer = setTimeout(() => {
@@ -49,7 +44,6 @@ export default function SearchPanel({ focused = false, refreshPackages = () => {
     }
   }, [operationStatus]);
   
-  // Handle scrolling in results list
   useEffect(() => {
     if (selectedIndex < startIndex) {
       setStartIndex(selectedIndex);
@@ -58,7 +52,6 @@ export default function SearchPanel({ focused = false, refreshPackages = () => {
     }
   }, [selectedIndex, startIndex, visibleItems]);
   
-  // Perform search using brewServices
   const performSearch = async () => {
     if (!inputValue.trim()) {
       return;
@@ -91,7 +84,6 @@ export default function SearchPanel({ focused = false, refreshPackages = () => {
     }
   };
   
-  // Handle submitting the search input
   const handleSubmit = () => {
     if (isTyping && inputValue.trim()) {
       setIsTyping(false);
@@ -99,7 +91,6 @@ export default function SearchPanel({ focused = false, refreshPackages = () => {
     }
   };
   
-  // Install selected packages
   const installSelectedPackages = async () => {
     if (selectedPackages.size === 0) {
       setOperationStatus({ success: false, message: 'No packages selected for installation' });
@@ -130,7 +121,6 @@ export default function SearchPanel({ focused = false, refreshPackages = () => {
       if (result.success) {
         setSelectedPackages(new Set());
         
-        // Refresh the packages list in the MainPanel
         refreshPackages();
       }
     } catch (err) {
@@ -150,7 +140,6 @@ export default function SearchPanel({ focused = false, refreshPackages = () => {
     setStartIndex(0);
   };
   
-  // Calculate scrollbar positions
   const renderScrollBar = () => {
     if (searchResults.length <= visibleItems) {
       return [];
@@ -176,38 +165,30 @@ export default function SearchPanel({ focused = false, refreshPackages = () => {
   
   const scrollBarItems = !isSearching && searchResults.length > 0 ? renderScrollBar() : [];
   
-  // Handle keyboard input
   useInput((input, key) => {
     if (!isFocused || operationInProgress) return;
     
-    // Toggle search input
     if (input === '/' && !isTyping) {
       setInputValue('');
       setIsTyping(true);
     } 
-    // Submit search when Enter is pressed
     else if (isFocused && isTyping && key.return) {
       handleSubmit();
     } 
-    // Cancel search input
     else if (isFocused && isTyping && key.escape) {
       setInputValue('');
       setIsTyping(false);
     }
-    // Clear search results
     else if (isFocused && !isTyping && searchResults.length > 0 && key.escape) {
       clearSearch();
     }
-    // Navigation in search results
     else if (isFocused && !isTyping && searchResults.length > 0) {
-      // Up/Down navigation
       if (key.upArrow) {
         setSelectedIndex(prev => Math.max(0, prev - 1));
       } else if (key.downArrow) {
         setSelectedIndex(prev => Math.min(searchResults.length - 1, prev + 1));
       }
       
-      // Space to select/deselect
       if (input === ' ') {
         const packageName = searchResults[selectedIndex]?.name;
         if (packageName) {
@@ -223,7 +204,6 @@ export default function SearchPanel({ focused = false, refreshPackages = () => {
         }
       }
       
-      // 'i' to install selected packages
       if (input === 'i') {
         installSelectedPackages();
       }
@@ -236,7 +216,6 @@ export default function SearchPanel({ focused = false, refreshPackages = () => {
     }
   };
   
-  // Define styles
   const styles = {
     wrapper: {
       display: 'flex',
@@ -346,7 +325,6 @@ export default function SearchPanel({ focused = false, refreshPackages = () => {
       </Box>
       
       <Box {...(isFocused ? styles.mainContainer_focused : styles.mainContainer)}>
-        {/* Search Input Box - Always at the top */}
         <Box {...styles.searchBox}>
           <Text>&gt; </Text>
           {isTyping ? (
@@ -366,11 +344,9 @@ export default function SearchPanel({ focused = false, refreshPackages = () => {
           )}
         </Box>
         
-        {/* Search Results */}
         {isSearching ? (
           <MenuPlaceholder loadingPackages={true} packagesFound={true} />
         ) : searchResults.length > 0 ? (
-          // Show results with scrolling
           searchResults
             .slice(startIndex, startIndex + visibleItems)
             .map((pkg, index) => (
