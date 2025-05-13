@@ -13,8 +13,9 @@ import MenuPlaceholder from './common/MenuPlaceholder';
 export default function MainPanel({ 
   focused = false, 
   refreshTrigger = 0,
-  setIsSearchingGlobal = () => {}, // Added prop for communicating search state to parent
-  setOperationInProgressGlobal = () => {} // Added prop for communicating operation state to parent
+  setIsSearchingGlobal = () => {}, 
+  setOperationInProgressGlobal = () => {},
+  sudoPassword = null
 }) {
   const [tWidth, tHeight] = useTerminalDimensions();
   const isFocused = focused;
@@ -126,12 +127,12 @@ export default function MainPanel({
       let result;
       
       if (selectAll) {
-        result = await updateAllPackages();
+        result = await updateAllPackages(sudoPassword);
       } else {
         const updateResults = [];
         
         for (const packageName of updatableSelectedPackages) {
-          const packageResult = await updatePackage(packageName);
+          const packageResult = await updatePackage(packageName, sudoPassword);
           updateResults.push(packageResult);
         }
         
@@ -183,7 +184,7 @@ export default function MainPanel({
       const deleteResults = [];
       
       for (const packageName of selectedPackages) {
-        const packageResult = await uninstallPackage(packageName);
+        const packageResult = await uninstallPackage(packageName, sudoPassword);
         deleteResults.push(packageResult);
       }
       

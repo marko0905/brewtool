@@ -282,10 +282,31 @@ async function syncWithBrewfile(dryRun = false) {
     // Install packages from brewfile
     for (const packageName of toInstall) {
       try {
-        const proc = Bun.spawn(["brew", "install", packageName], {
-          stdout: "pipe",
-          stderr: "pipe",
-        });
+        // These packages are known to require sudo
+        const privilegedPackages = ['parallels', 'virtualbox', 'vmware', 'docker'];
+        const isPrivileged = privilegedPackages.some(name => 
+          packageName.toLowerCase().includes(name.toLowerCase())
+        );
+        
+        let proc;
+        
+        if (isPrivileged) {
+          // Use sudo -A to get password from SUDO_ASKPASS
+          proc = Bun.spawn(['sudo', '-A', 'brew', 'install', packageName], {
+            stdout: "pipe",
+            stderr: "pipe",
+            env: {
+              ...process.env,
+              SUDO_ASKPASS: process.env.SUDO_ASKPASS
+            }
+          });
+        } else {
+          // Regular brew command for non-privileged packages
+          proc = Bun.spawn(['brew', 'install', packageName], {
+            stdout: "pipe",
+            stderr: "pipe",
+          });
+        }
         
         const exitCode = await proc.exited;
         
@@ -311,10 +332,31 @@ async function syncWithBrewfile(dryRun = false) {
     // Remove packages not in brewfile
     for (const packageName of toRemove) {
       try {
-        const proc = Bun.spawn(["brew", "uninstall", packageName], {
-          stdout: "pipe",
-          stderr: "pipe",
-        });
+        // These packages are known to require sudo
+        const privilegedPackages = ['parallels', 'virtualbox', 'vmware', 'docker'];
+        const isPrivileged = privilegedPackages.some(name => 
+          packageName.toLowerCase().includes(name.toLowerCase())
+        );
+        
+        let proc;
+        
+        if (isPrivileged) {
+          // Use sudo -A to get password from SUDO_ASKPASS
+          proc = Bun.spawn(['sudo', '-A', 'brew', 'uninstall', packageName], {
+            stdout: "pipe",
+            stderr: "pipe",
+            env: {
+              ...process.env,
+              SUDO_ASKPASS: process.env.SUDO_ASKPASS
+            }
+          });
+        } else {
+          // Regular brew command for non-privileged packages
+          proc = Bun.spawn(['brew', 'uninstall', packageName], {
+            stdout: "pipe",
+            stderr: "pipe",
+          });
+        }
         
         const exitCode = await proc.exited;
         

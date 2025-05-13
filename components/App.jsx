@@ -1,5 +1,6 @@
 // brewtool/components/App.jsx
 
+import { spawn } from 'child_process';
 import { Box, useInput } from 'ink';
 import { useEffect, useState } from 'react';
 
@@ -106,7 +107,6 @@ export default function App() {
         focused_m={focused_m}
         focused_b={focused_b}
       />
-
     </Box>
   );
 }

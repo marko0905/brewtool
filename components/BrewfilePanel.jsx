@@ -20,7 +20,8 @@ import BrewfileStates from './common/BrewfileStates.jsx';
 export default function BrewfilePanel({ 
   focused = false, 
   refreshTrigger = 0,
-  setOperationInProgressGlobal = () => {} // Added prop for communicating operation state to parent
+  setOperationInProgressGlobal = () => {},
+  sudoPassword = null
 }) {
   const isFocused = focused;
   const [tWidth, tHeight] = useTerminalDimensions();
@@ -195,7 +196,8 @@ export default function BrewfilePanel({
       setInternalOperationInProgress(true);
       setOperationStatus({ message: 'Syncing system with brewfile...' });
       
-      const result = await installFromBrewfile(false);
+      // Pass the sudo password to installFromBrewfile
+      const result = await installFromBrewfile(false, sudoPassword);
       
       let detailedMessage = result.message;
       

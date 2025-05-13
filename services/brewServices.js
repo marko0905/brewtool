@@ -1,12 +1,9 @@
-// brewtool/services/brewService.js
+// brewtool/services/brewServices.js
 
 /**
  * Service to handle all interactions with Homebrew
  * Provides functions to search, install, update and remove packages
  */
-
-// Using Bun's built-in subprocess functionality
-// Note: Bun provides a cleaner API than Node's child_process
 
 /**
  * Execute a brew command and return the result
@@ -17,15 +14,92 @@
  */
 async function executeBrewCommand(command, args = []) {
   try {
-    const proc = Bun.spawn(["brew", command, ...args], {
-      stdout: "pipe",
-      stderr: "pipe",
+    // These packages are known to require special handling
+    const specialPackages = ['parallels', 'virtualbox', 'vmware', 'docker'];
+    const isSpecialPackage = 
+      args.length > 0 && 
+      specialPackages.some(name => args[0].toLowerCase().includes(name.toLowerCase()));
+    
+    if (isSpecialPackage && (command === "uninstall" || command === "install" || command === "upgrade")) {
+      console.log(`Using direct approach for ${command} ${args.join(' ')}`);
+      
+      // For Parallels specifically, use a more direct approach
+      if (args[0].toLowerCase().includes('parallels')) {
+        // First, try the zap option which is more forceful
+        const zapArgs = [...args, '--zap'];
+        const proc = Bun.spawn(['brew', command, ...zapArgs], {
+          stdout: 'pipe',
+          stderr: 'pipe',
+          env: { ...process.env, SUDO_ASKPASS: process.env.SUDO_ASKPASS }
+        });
+        
+        // Set a timeout of 60 seconds
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => {
+            reject(new Error('Operation timed out after 60 seconds'));
+          }, 60000);
+        });
+        
+        try {
+          // Race between the process completion and timeout
+          const exitCode = await Promise.race([
+            proc.exited,
+            timeoutPromise
+          ]);
+          
+          const stdout = await new Response(proc.stdout).text();
+          const stderr = await new Response(proc.stderr).text();
+          
+          return {
+            stdout,
+            stderr,
+            success: exitCode === 0
+          };
+        } catch (err) {
+          console.error('Error or timeout occurred:', err.message);
+          // Kill the process if it's a timeout
+          try {
+            process.kill(-proc.pid, 'SIGKILL');
+          } catch (killErr) {
+            console.error('Error killing process:', killErr);
+          }
+          
+          return {
+            stdout: '',
+            stderr: 'Operation timed out or was interrupted: ' + err.message,
+            success: false
+          };
+        }
+      }
+      
+      // For other special packages
+      const proc = Bun.spawn(['brew', command, ...args], {
+        stdout: 'pipe',
+        stderr: 'pipe',
+        env: { ...process.env, SUDO_ASKPASS: process.env.SUDO_ASKPASS }
+      });
+      
+      const stdout = await new Response(proc.stdout).text();
+      const stderr = await new Response(proc.stderr).text();
+      const exitCode = await proc.exited;
+      
+      return {
+        stdout,
+        stderr,
+        success: exitCode === 0
+      };
+    }
+    
+    // Regular execution without sudo
+    const proc = Bun.spawn(['brew', command, ...args], {
+      stdout: 'pipe',
+      stderr: 'pipe',
     });
-
+    
     const stdout = await new Response(proc.stdout).text();
     const stderr = await new Response(proc.stderr).text();
     const exitCode = await proc.exited;
-
+    
     return {
       stdout,
       stderr,
@@ -34,8 +108,8 @@ async function executeBrewCommand(command, args = []) {
   } catch (error) {
     console.error(`Error executing brew ${command}:`, error);
     return {
-      stdout: "",
-      stderr: error.message || "Unknown error occurred",
+      stdout: '',
+      stderr: error.message || 'Unknown error occurred',
       success: false
     };
   }
@@ -229,6 +303,19 @@ async function uninstallPackage(packageName) {
     };
   }
 
+  // Special handling for Parallels
+  if (packageName.toLowerCase().includes('parallels')) {
+    const { stdout, stderr, success } = await executeBrewCommand("uninstall", [packageName, "--force"]);
+    
+    return {
+      success,
+      message: success 
+        ? `Successfully uninstalled ${packageName}`
+        : `Failed to uninstall ${packageName}: ${stderr}`
+    };
+  }
+
+  // Regular uninstall for other packages
   const { stdout, stderr, success } = await executeBrewCommand("uninstall", [packageName]);
   
   return {

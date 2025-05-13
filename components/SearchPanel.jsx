@@ -12,8 +12,9 @@ import SearchListItem from './common/SearchListItem.jsx';
 export default function SearchPanel({ 
   focused = false, 
   refreshPackages = () => {},
-  setIsSearchingGlobal = () => {}, // Added prop for communicating search state to parent
-  setOperationInProgressGlobal = () => {} // Added prop for communicating operation state to parent
+  setIsSearchingGlobal = () => {}, 
+  setOperationInProgressGlobal = () => {},
+  sudoPassword = null
 }) {
   const isFocused = focused;
   const [tWidth, tHeight] = useTerminalDimensions();
@@ -119,7 +120,8 @@ export default function SearchPanel({
       const installResults = [];
       
       for (const packageName of selectedPackages) {
-        const packageResult = await installPackage(packageName);
+        // Use the sudo password directly
+        const packageResult = await installPackage(packageName, sudoPassword);
         installResults.push(packageResult);
       }
       
@@ -135,7 +137,6 @@ export default function SearchPanel({
       
       if (result.success) {
         setSelectedPackages(new Set());
-        
         refreshPackages();
       }
     } catch (err) {

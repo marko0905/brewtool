@@ -1,13 +1,9 @@
-import { render } from 'ink';
-import React from 'react';
-import App from './components/App.jsx';
+// brewtool/index.js
 
-// Make sure React is properly initialized
-const main = () => {
-  // Clear the console before rendering
-  console.clear();
-  // Render the main application component
-  render(<App />);
-};
+import { main } from './services/startup.js';
 
-main();
+// Start the application
+main().catch(error => {
+  console.error('Error during startup:', error);
+  process.exit(1);
+});
