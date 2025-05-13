@@ -17,7 +17,11 @@ import {
 import { useTerminalDimensions } from '../utils/hooks.js';
 import BrewfileStates from './common/BrewfileStates.jsx';
 
-export default function BrewfilePanel({ focused = false, refreshTrigger = 0 }) {
+export default function BrewfilePanel({ 
+  focused = false, 
+  refreshTrigger = 0,
+  setOperationInProgressGlobal = () => {} // Added prop for communicating operation state to parent
+}) {
   const isFocused = focused;
   const [tWidth, tHeight] = useTerminalDimensions();
   
@@ -26,25 +30,30 @@ export default function BrewfilePanel({ focused = false, refreshTrigger = 0 }) {
   const [brewfileUpToDate, setBrewfileUpToDate] = useState(false);
   const [isSymlinked, setIsSymlinked] = useState(false);
   const [symlinkTarget, setSymlinkTarget] = useState('');
-  const [operationInProgress, setOperationInProgress] = useState(false);
+  const [operationInProgress, setInternalOperationInProgress] = useState(false);
   const [operationStatus, setOperationStatus] = useState(null);
   const [pendingChanges, setPendingChanges] = useState(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   const bPanelHeight = Math.max(Math.floor(tHeight * 0.1), 3);
   
+  // Update parent component when operation state changes
+  useEffect(() => {
+    setOperationInProgressGlobal(operationInProgress);
+  }, [operationInProgress, setOperationInProgressGlobal]);
+  
   useEffect(() => {
     checkBrewfileStatus();
   }, [focused, refreshTrigger]);
   
   useEffect(() => {
-    if (operationStatus) {
+    if (operationStatus && !operationInProgress) {
       const timer = setTimeout(() => {
         setOperationStatus(null);
       }, 3000);
       return () => clearTimeout(timer);
     }
-  }, [operationStatus]);
+  }, [operationStatus, operationInProgress]);
   
   async function checkBrewfileStatus() {
     try {
@@ -82,7 +91,7 @@ export default function BrewfilePanel({ focused = false, refreshTrigger = 0 }) {
     if (operationInProgress) return;
     
     try {
-      setOperationInProgress(true);
+      setInternalOperationInProgress(true);
       setOperationStatus({ message: 'Creating Brewfile...' });
       
       const result = await createBrewfile();
@@ -97,7 +106,7 @@ export default function BrewfilePanel({ focused = false, refreshTrigger = 0 }) {
         message: `Failed to create Brewfile: ${err.message || 'Unknown error'}`
       });
     } finally {
-      setOperationInProgress(false);
+      setInternalOperationInProgress(false);
     }
   }
   
@@ -114,7 +123,7 @@ export default function BrewfilePanel({ focused = false, refreshTrigger = 0 }) {
     }
     
     try {
-      setOperationInProgress(true);
+      setInternalOperationInProgress(true);
       setOperationStatus({ message: 'Updating Brewfile...' });
       
       const result = await updateBrewfile();
@@ -129,7 +138,7 @@ export default function BrewfilePanel({ focused = false, refreshTrigger = 0 }) {
         message: `Failed to update Brewfile: ${err.message || 'Unknown error'}`
       });
     } finally {
-      setOperationInProgress(false);
+      setInternalOperationInProgress(false);
     }
   }
   
@@ -137,7 +146,7 @@ export default function BrewfilePanel({ focused = false, refreshTrigger = 0 }) {
     if (operationInProgress || !brewfileExists) return;
     
     try {
-      setOperationInProgress(true);
+      setInternalOperationInProgress(true);
       setOperationStatus({ message: 'Analyzing brewfile changes...' });
       
       const changes = await getBrewfileSyncChanges();
@@ -161,7 +170,7 @@ export default function BrewfilePanel({ focused = false, refreshTrigger = 0 }) {
         message: `Failed to analyze brewfile changes: ${err.message || 'Unknown error'}`
       });
     } finally {
-      setOperationInProgress(false);
+      setInternalOperationInProgress(false);
     }
   }
   
@@ -183,7 +192,7 @@ export default function BrewfilePanel({ focused = false, refreshTrigger = 0 }) {
     
     try {
       setShowConfirmation(false);
-      setOperationInProgress(true);
+      setInternalOperationInProgress(true);
       setOperationStatus({ message: 'Syncing system with brewfile...' });
       
       const result = await installFromBrewfile(false);
@@ -216,7 +225,7 @@ export default function BrewfilePanel({ focused = false, refreshTrigger = 0 }) {
         message: `Failed to sync with brewfile: ${err.message || 'Unknown error'}`
       });
     } finally {
-      setOperationInProgress(false);
+      setInternalOperationInProgress(false);
     }
   }
   

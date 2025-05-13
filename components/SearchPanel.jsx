@@ -9,7 +9,12 @@ import { useTerminalDimensions } from '../utils/hooks.js';
 import MenuPlaceholder from './common/MenuPlaceholder.jsx';
 import SearchListItem from './common/SearchListItem.jsx';
 
-export default function SearchPanel({ focused = false, refreshPackages = () => {} }) {
+export default function SearchPanel({ 
+  focused = false, 
+  refreshPackages = () => {},
+  setIsSearchingGlobal = () => {}, // Added prop for communicating search state to parent
+  setOperationInProgressGlobal = () => {} // Added prop for communicating operation state to parent
+}) {
   const isFocused = focused;
   const [tWidth, tHeight] = useTerminalDimensions();
   
@@ -29,6 +34,16 @@ export default function SearchPanel({ focused = false, refreshPackages = () => {
   
   const visibleItems = Math.max(sPanelHeight - 3, 1);
   
+  // Update parent component when search state changes
+  useEffect(() => {
+    setIsSearchingGlobal(isTyping);
+  }, [isTyping, setIsSearchingGlobal]);
+  
+  // Update parent component when operation state changes
+  useEffect(() => {
+    setOperationInProgressGlobal(operationInProgress);
+  }, [operationInProgress, setOperationInProgressGlobal]);
+  
   useEffect(() => {
     if (!isFocused) {
       setIsTyping(false);
@@ -36,13 +51,13 @@ export default function SearchPanel({ focused = false, refreshPackages = () => {
   }, [isFocused]);
   
   useEffect(() => {
-    if (operationStatus) {
+    if (operationStatus && !operationInProgress) {
       const timer = setTimeout(() => {
         setOperationStatus(null);
       }, 3000);
       return () => clearTimeout(timer);
     }
-  }, [operationStatus]);
+  }, [operationStatus, operationInProgress]);
   
   useEffect(() => {
     if (selectedIndex < startIndex) {

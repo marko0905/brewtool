@@ -10,7 +10,12 @@ import MenuListItemAll from './common/MenuListItemAll';
 import MenuListSearch from './common/MenuListSearch';
 import MenuPlaceholder from './common/MenuPlaceholder';
 
-export default function MainPanel({ focused = false, refreshTrigger = 0 }) {
+export default function MainPanel({ 
+  focused = false, 
+  refreshTrigger = 0,
+  setIsSearchingGlobal = () => {}, // Added prop for communicating search state to parent
+  setOperationInProgressGlobal = () => {} // Added prop for communicating operation state to parent
+}) {
   const [tWidth, tHeight] = useTerminalDimensions();
   const isFocused = focused;
   
@@ -26,12 +31,22 @@ export default function MainPanel({ focused = false, refreshTrigger = 0 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredPackages, setFilteredPackages] = useState([]);
   
-  const [operationInProgress, setOperationInProgress] = useState(false);
+  const [operationInProgress, setInternalOperationInProgress] = useState(false);
   const [operationStatus, setOperationStatus] = useState(null);
 
   const mPanelHeight = Math.max(Math.floor(tHeight * 0.75), 5);
   
   const visibleItems = Math.max(mPanelHeight - 3, 1);
+  
+  // Update parent component when search state changes
+  useEffect(() => {
+    setIsSearchingGlobal(isSearching);
+  }, [isSearching, setIsSearchingGlobal]);
+  
+  // Update parent component when operation state changes
+  useEffect(() => {
+    setOperationInProgressGlobal(operationInProgress);
+  }, [operationInProgress, setOperationInProgressGlobal]);
   
   useEffect(() => {
     fetchPackages();
@@ -82,14 +97,14 @@ export default function MainPanel({ focused = false, refreshTrigger = 0 }) {
   }, [selectedIndex, startIndex, visibleItems]);
 
   useEffect(() => {
-    if (operationStatus) {
+    if (operationStatus && !operationInProgress) {
       const timer = setTimeout(() => {
         setOperationStatus(null);
       }, 3000);
       
       return () => clearTimeout(timer);
     }
-  }, [operationStatus]);
+  }, [operationStatus, operationInProgress]);
 
   const handleUpdate = async () => {
     const updatableSelectedPackages = new Set(
@@ -104,7 +119,7 @@ export default function MainPanel({ focused = false, refreshTrigger = 0 }) {
       return;
     }
     
-    setOperationInProgress(true);
+    setInternalOperationInProgress(true);
     setOperationStatus({ message: 'Updating packages...' });
     
     try {
@@ -143,7 +158,7 @@ export default function MainPanel({ focused = false, refreshTrigger = 0 }) {
         message: `Update failed: ${err.message || 'Unknown error'}` 
       });
     } finally {
-      setOperationInProgress(false);
+      setInternalOperationInProgress(false);
     }
   };
   
@@ -161,7 +176,7 @@ export default function MainPanel({ focused = false, refreshTrigger = 0 }) {
       return;
     }
     
-    setOperationInProgress(true);
+    setInternalOperationInProgress(true);
     setOperationStatus({ message: 'Uninstalling packages...' });
     
     try {
@@ -194,7 +209,7 @@ export default function MainPanel({ focused = false, refreshTrigger = 0 }) {
         message: `Uninstall failed: ${err.message || 'Unknown error'}` 
       });
     } finally {
-      setOperationInProgress(false);
+      setInternalOperationInProgress(false);
     }
   };
 

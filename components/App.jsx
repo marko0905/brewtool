@@ -16,6 +16,11 @@ export default function App() {
   const [focused_m, setFocused_m] = useState(false);
   const [focused_b, setFocused_b] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  
+  // Added states to track search mode in panels
+  const [searchPanelIsSearching, setSearchPanelIsSearching] = useState(false);
+  const [mainPanelIsSearching, setMainPanelIsSearching] = useState(false);
+  const [operationInProgress, setOperationInProgress] = useState(false);
 
   const refreshPackages = () => {
     setRefreshTrigger(prev => prev + 1);
@@ -34,19 +39,27 @@ export default function App() {
   }, []);
 
   useInput((input, key) => {
-    if (input === '1') {
-      setFocused_s(true);
-      setFocused_m(false);
-      setFocused_b(false);
-    } else if (input === '2') {
-      setFocused_s(false);
-      setFocused_m(true);
-      setFocused_b(false);
-    } else if (input === '3') {
-      setFocused_s(false);
-      setFocused_m(false);
-      setFocused_b(true);
+    // Check if any panel is in search mode or has an operation in progress
+    const anySearchActive = searchPanelIsSearching || mainPanelIsSearching;
+    const anyOperationInProgress = operationInProgress;
+    
+    // Only allow panel switching when not in search mode and no operation in progress
+    if (!anySearchActive && !anyOperationInProgress) {
+      if (input === '1') {
+        setFocused_s(true);
+        setFocused_m(false);
+        setFocused_b(false);
+      } else if (input === '2') {
+        setFocused_s(false);
+        setFocused_m(true);
+        setFocused_b(false);
+      } else if (input === '3') {
+        setFocused_s(false);
+        setFocused_m(false);
+        setFocused_b(true);
+      }
     }
+    
     if (input === 'q') {
       console.clear();
       process.exit(0);
@@ -72,16 +85,21 @@ export default function App() {
       <SearchPanel 
         focused={focused_s}
         refreshPackages={refreshPackages}
+        setIsSearchingGlobal={setSearchPanelIsSearching}
+        setOperationInProgressGlobal={setOperationInProgress}
       />
 
       <MainPanel 
         focused={focused_m}
         refreshTrigger={refreshTrigger}
+        setIsSearchingGlobal={setMainPanelIsSearching}
+        setOperationInProgressGlobal={setOperationInProgress}
       />
 
       <BrewfilePanel 
         focused={focused_b}
         refreshTrigger={refreshTrigger}
+        setOperationInProgressGlobal={setOperationInProgress}
       />
       <CommandBar
         focused_s={focused_s}
