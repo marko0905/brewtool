@@ -8,8 +8,7 @@ export default function MenuListItem({
   updateAvailable = false, 
   updateVersion = '', 
   listItemFocused = false, 
-  selected = false,
-  sudoRequired = false
+  selected = false
 }) {
   
   const styles = {
@@ -63,7 +62,6 @@ export default function MenuListItem({
         <Text color="rgb(255, 166, 0)">{packageVersion}</Text>
       )}
       <Text> |</Text>
-      {sudoRequired && (<Text color="rgb(208, 0, 255)">Sudo privileges required</Text>)}
     </Box>
   );
 }
