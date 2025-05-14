@@ -217,9 +217,12 @@ async function getInstalledPackages() {
     return [];
   }
 
-  // Get list of outdated packages
+  // Get list of outdated packages with more verbose output
   const { stdout: outdatedOutput, success: outdatedSuccess } = 
     await executeBrewCommand("outdated", ["--verbose"]);
+  
+  // For debugging
+  console.log("Outdated packages:", outdatedOutput);
   
   // Create a map of outdated packages for quicker lookup
   const outdatedMap = new Map();
@@ -229,10 +232,25 @@ async function getInstalledPackages() {
       .split("\n")
       .filter(line => line.trim() !== "")
       .forEach(line => {
-        // Format is typically: package_name (current_version) < new_version
-        const match = line.match(/^([\w-]+)\s+\((.+?)\)\s+<\s+(.+)/);
+        // Format can be either:
+        // package_name (current_version) < new_version
+        // OR for tap packages:
+        // username/tap/package_name (current_version) < new_version
+        
+        // First, try the standard format
+        let match = line.match(/^([\w-]+)\s+\((.+?)\)\s+<\s+(.+)/);
+        
+        // If that doesn't work, try the tap format
+        if (!match) {
+          match = line.match(/^([\w\/-]+)\s+\((.+?)\)\s+<\s+(.+)/);
+        }
+        
         if (match) {
-          outdatedMap.set(match[1], {
+          // For tap packages, get just the package name without the tap prefix
+          const fullName = match[1];
+          const packageName = fullName.includes('/') ? fullName.split('/').pop() : fullName;
+          
+          outdatedMap.set(packageName, {
             currentVersion: match[2],
             newVersion: match[3].trim()
           });
